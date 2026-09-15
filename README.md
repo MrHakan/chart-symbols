@@ -37,7 +37,7 @@ The project uses native Android with Kotlin and Jetpack Compose:
 
 ## Release workflow
 
-Pushing a tag such as `android-v0.1.0` builds a release APK and AAB and creates a GitHub release. The initial bootstrap can also be triggered by a `[release]` commit on `main`; after that, normal `android-v*` tags remain the preferred release path. The current starter uses the debug signing key for sideloadable builds; a private upload key should be wired through repository secrets before Play Store distribution.
+Pushing a tag such as `android-v0.2.0` builds a release APK and AAB and creates a GitHub release. The configured bootstrap can also be triggered by a `[release]` commit on `main`; after that, normal `android-v*` tags remain the preferred release path. The current starter uses the debug signing key for sideloadable builds; a private upload key should be wired through repository secrets before Play Store distribution.
 
 ## Content roadmap
 

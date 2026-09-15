@@ -43,6 +43,8 @@ jobs:
       (github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]'))
     needs: build
     runs-on: ubuntu-latest
+    env:
+      BOOTSTRAP_RELEASE_TAG: android-v0.2.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +65,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/android-v* ]]; then
             RELEASE_TAG="$RELEASE_VERSION"
           else
-            RELEASE_TAG="android-v0.1.0"
+            RELEASE_TAG="$BOOTSTRAP_RELEASE_TAG"
           fi
           VERSION_NAME="${RELEASE_TAG#android-v}"
           ./gradlew assembleRelease bundleRelease -PversionName="$VERSION_NAME" --stacktrace
@@ -75,7 +77,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/android-v* ]]; then
             RELEASE_TAG="$GITHUB_REF_NAME"
           else
-            RELEASE_TAG="android-v0.1.0"
+            RELEASE_TAG="$BOOTSTRAP_RELEASE_TAG"
           fi
           VERSION_NAME="${RELEASE_TAG#android-v}"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
