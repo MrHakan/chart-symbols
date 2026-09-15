@@ -39,5 +39,5 @@ data class ChartSymbol(
     val meaning: String,
     val recognition: String,
     val memoryTip: String,
-    val referenceFamily: String = "INT 1 ailesi"
+    val referenceFamily: String = "IHO INT 1 / Chart No. 1"
 )

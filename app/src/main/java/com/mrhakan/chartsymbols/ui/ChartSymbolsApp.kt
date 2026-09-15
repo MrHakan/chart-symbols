@@ -228,7 +228,7 @@ private fun HomeScreen(
         }
         item {
             Text(
-                text = "İllüstratif başlangıç seti — gerçek seyir kararları için güncel harita, INT 1/Chart 1 ve gemi prosedürlerini kontrol et.",
+                text = "IHO INT 1 / Chart No. 1 görsel diliyle özgün vektör yeniden çizimleri — seyir için güncel resmî haritayı ve gemi prosedürlerini kontrol et.",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
@@ -595,7 +595,7 @@ private fun SymbolDetailScreen(
             }
             item {
                 Text(
-                    text = "Kaynak ailesi: ${symbol.referenceFamily}. Bu ekran öğrenme amaçlı basitleştirilmiş bir görsel anlatımdır; resmî sembolün yerine geçmez.",
+                    text = "Kaynak ailesi: ${symbol.referenceFamily}. Görsel, resmî yayından kopya değildir; öğrenme amaçlı vektör yeniden çizimidir ve seyir için kullanılamaz.",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

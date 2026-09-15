@@ -11,7 +11,7 @@ object SymbolCatalog {
             accent = SymbolAccent.AMBER,
             summary = "Sabit bir ışık tesisini ve ışık karakteristiğini okumaya giriş.",
             meaning = "Kıyıdaki veya açık denizdeki sabit bir ışık tesisinin bulunduğu yeri gösterir. Işık rengi, periyodu ve menzili harita üzerindeki ilgili ışık bilgisiyle birlikte değerlendirilir.",
-            recognition = "Kule veya ışık gövdesi, üst bölümdeki ışın çizgileri ve çoğunlukla belirgin sarı/amber vurgu.",
+            recognition = "Kule/gövde, magenta ışık halesi ve ışın çizgileri; ışık karakteristiği harita notuyla birlikte okunur.",
             memoryTip = "Işık ışınları = geceleri tanınabilir bir seyir yardımcısı."
         ),
         ChartSymbol(
@@ -23,7 +23,7 @@ object SymbolCatalog {
             accent = SymbolAccent.TEAL,
             summary = "Yüzer seyir yardımcısını şekli, rengi ve işaretiyle tanı.",
             meaning = "Kanalı, tehlikeyi veya özel bir alanı işaretleyen yüzer seyir yardımcısıdır. Şekil, renk, tepe işareti ve ışık bilgisi birlikte okunmalıdır.",
-            recognition = "Su çizgisi, yüzer gövde, üst işaret ve isteğe bağlı ışık noktası.",
+            recognition = "Su çizgisi üzerindeki magenta yüzer gövde, üst işaret ve varsa ışık bilgisi.",
             memoryTip = "Şamandıra tek bir ipucu değildir; şekil + renk + ışık birlikte düşünülür."
         ),
         ChartSymbol(
@@ -35,7 +35,7 @@ object SymbolCatalog {
             accent = SymbolAccent.CORAL,
             summary = "Seyir için tehlike oluşturabilecek batık işaretini ayırt et.",
             meaning = "Deniz tabanında bulunan ve geminin emniyetli geçişini etkileyebilecek batık veya su altında kalan engeli ifade eder.",
-            recognition = "Çarpışan gövde çizgileri veya üstten görünüşlü enkaz şekli; çevresinde derinlik ve tehlike notları bulunabilir.",
+            recognition = "Gövde/mast çizgileri ve batığın konumunu gösteren magenta vurgu; en küçük derinlik bilgisi ayrıca verilebilir.",
             memoryTip = "Düzensiz kesişen çizgiler = su altında kalan bir gövdeyi düşün."
         ),
         ChartSymbol(
@@ -47,7 +47,7 @@ object SymbolCatalog {
             accent = SymbolAccent.BLUE,
             summary = "Demirleme için ayrılmış alanı ve kapsamını okumaya giriş.",
             meaning = "Gemilerin demirleyebileceği ayrılmış bölgeyi gösterir. Derinlik, zemin, trafik ve yerel talimatlar ayrıca kontrol edilmelidir.",
-            recognition = "Alan vurgusu içinde çapa işareti veya çapa fikrini veren merkezî sembol.",
+            recognition = "Sınırlandırılmış alan çizgisi ve merkezdeki çapa; alanın kapsamı ve notları da okunur.",
             memoryTip = "Çapa gördüğünde sadece yeri değil, sınırları ve kısıtları da ara."
         ),
         ChartSymbol(
@@ -59,7 +59,7 @@ object SymbolCatalog {
             accent = SymbolAccent.VIOLET,
             summary = "Aynı derinliğe sahip noktaları birleştiren çizgiyi oku.",
             meaning = "Aynı derinliğe sahip noktaları birleştirir ve sığlaşma veya derinleşmenin genel şeklini anlamaya yardım eder.",
-            recognition = "Birbirini takip eden kapalı veya kıvrımlı çizgiler; sayı değeri varsa birim ve datum ile okunur.",
+            recognition = "Mavi, kıvrımlı izobat çizgisi ve çizgi üzerindeki derinlik etiketi; birim ve datum ile okunur.",
             memoryTip = "Çizgiler sıklaşıyorsa derinlik kısa mesafede değişiyor olabilir."
         ),
         ChartSymbol(
@@ -71,7 +71,7 @@ object SymbolCatalog {
             accent = SymbolAccent.CORAL,
             summary = "Su altında, su seviyesinde veya su üstündeki kayalık tehlikeyi fark et.",
             meaning = "Seyir emniyetini etkileyebilecek kayalık bir oluşumu gösterir. Kayalığın suya göre durumu ve verilen derinlik bilgisi birlikte incelenmelidir.",
-            recognition = "Sivri kaya gövdesi ve altındaki dalga çizgileri; gerçek sınıflandırma harita kaydına göre değişebilir.",
+            recognition = "Konumda kesişen yıldız/çarpı biçimli kaya işareti ve eşlik eden derinlik bilgisi.",
             memoryTip = "Dalga çizgileri ve sert köşe = dibi/üstü tehlike olabilecek kaya."
         ),
         ChartSymbol(
@@ -83,7 +83,7 @@ object SymbolCatalog {
             accent = SymbolAccent.VIOLET,
             summary = "Seyir veya demirlemenin sınırlanabileceği alanı tanı.",
             meaning = "Seyir, demirleme veya başka bir faaliyetin sınırlandırılabileceği özel alanı ifade eder. Harita notları ve güncel yerel duyurular mutlaka kontrol edilmelidir.",
-            recognition = "Belirgin alan sınırı ve çapraz tarama/uyarı deseni.",
+            recognition = "Magenta alan sınırı, çapraz tarama ve kısıt bilgisini çağıran merkezî uyarı işareti.",
             memoryTip = "Çapraz tarama = dur, alan açıklamasını oku, otomatik geçiş yapma."
         ),
         ChartSymbol(
@@ -95,7 +95,7 @@ object SymbolCatalog {
             accent = SymbolAccent.GREEN,
             summary = "Tek bir noktada ölçülmüş su derinliğini okumayı öğren.",
             meaning = "Belirli bir noktadaki ölçülmüş su derinliğini gösterir. Sayı, haritanın kullandığı birim ve düşey datum ile birlikte değerlendirilmelidir.",
-            recognition = "Küçük bir nokta veya sembol yanında yer alan sayısal derinlik bilgisi.",
+            recognition = "Tek bir noktaya ait sayısal derinlik; sayı, birim ve düşey datum ile birlikte değerlendirilir.",
             memoryTip = "Sayıyı tek başına okuma: birim + datum + geminin draftı birlikte düşünülür."
         )
     )
