@@ -196,8 +196,8 @@ private fun DrawScope.drawBuoy(
     filledPath: FillDrawer,
     wave: WaveDrawer
 ) {
-    wave(79f)
-    wave(87f)
+    wave(79f, ChartBlue)
+    wave(87f, ChartBlue)
 
     line(50f, 22f, 50f, 39f, ChartInk, 2.8f, StrokeCap.Square)
     val topmark = Path().apply {
