@@ -90,6 +90,7 @@ fun ChartSymbolsApp() {
 
     val selectedCategory = SymbolCategory.valueOf(selectedCategoryName)
     val visibleSymbols = SymbolCatalog.filter(searchQuery, selectedCategory)
+    val homeSymbols = visibleSymbols.take(10)
 
     if (detailSymbolId != null) {
         SymbolDetailScreen(
@@ -125,7 +126,7 @@ fun ChartSymbolsApp() {
                 onSearchQueryChange = { searchQuery = it },
                 selectedCategory = selectedCategory,
                 onCategoryChange = { selectedCategoryName = it.name },
-                visibleSymbols = visibleSymbols,
+                visibleSymbols = homeSymbols,
                 learnedCount = learnedIds.size,
                 onOpenSymbol = { symbol ->
                     learnedIds = learnedIds + symbol.id
@@ -201,7 +202,7 @@ private fun HomeScreen(
         }
         item {
             SectionHeader(
-                title = "Başlangıç kartları",
+                title = "Chart 1 sembol kataloğu",
                 subtitle = "Gör, oku, hatırla",
                 action = "Tümünü gör",
                 onAction = onOpenExplore
@@ -375,7 +376,7 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit) {
         trailingIcon = if (value.isNotEmpty()) {
             { IconButton(onClick = { onValueChange("") }) { Icon(Icons.Outlined.Close, contentDescription = "Temizle") } }
         } else null,
-        placeholder = { Text("Sembol, İngilizce adı veya anlam ara") }
+        placeholder = { Text("Sembol, İngilizce adı, kısaltma veya anlam ara") }
     )
 }
 

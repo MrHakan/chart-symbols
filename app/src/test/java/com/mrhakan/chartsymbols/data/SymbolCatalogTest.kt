@@ -9,7 +9,7 @@ class SymbolCatalogTest {
     fun categoryFilterReturnsOnlyMatchingSymbols() {
         val result = SymbolCatalog.filter("", SymbolCategory.DEPTH)
 
-        assertEquals(2, result.size)
+        assertTrue(result.size >= 5)
         assertTrue(result.all { it.category == SymbolCategory.DEPTH })
     }
 
@@ -17,5 +17,13 @@ class SymbolCatalogTest {
     fun searchMatchesTurkishAndEnglishNames() {
         assertEquals("Batık", SymbolCatalog.filter("wreck", SymbolCategory.ALL).single().title)
         assertEquals("Deniz feneri", SymbolCatalog.filter("fener", SymbolCategory.ALL).single().title)
+    }
+
+    @Test
+    fun expandedCatalogueHasUniqueIdsAndAliasSearch() {
+        assertTrue(SymbolCatalog.symbols.size >= 150)
+        assertEquals(SymbolCatalog.symbols.size, SymbolCatalog.symbols.map { it.id }.toSet().size)
+        assertEquals("Kardinal şamandıra", SymbolCatalog.filter("cardinal", SymbolCategory.ALL).single().title)
+        assertEquals("Denizaltı kablosu", SymbolCatalog.filter("cable", SymbolCategory.ALL).single().title)
     }
 }

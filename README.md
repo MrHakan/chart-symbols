@@ -2,13 +2,15 @@
 
 Android-first visual learning app for nautical chart symbols.
 
-The starter release focuses on a fast, offline-friendly learning loop:
+The first full catalogue release focuses on a fast, offline-friendly learning loop:
 
 - visual symbol cards with Turkish explanations and English terminology;
 - search and category filters;
 - detail pages with meaning, recognition cues and memory tips;
 - a working multiple-choice visual quiz;
 - progress feedback for discovered cards;
+- 155 catalogue cards across general chart information, topography, hydrography,
+  depths, navigation aids, hazards, areas, routes, ports and services;
 - a GitHub Actions workflow for debug builds and `android-v*` releases.
 
 The app now uses original vector redraws in the visual language of paper nautical charts: black construction lines, magenta aids/restrictions and blue bathymetry. They are designed for visual learning and are not official IHO/UKHO reproductions or navigation-safe chart data. They must not replace a current chart, official INT 1/Chart 1 publication, notices to mariners, or the vessel's procedures.
@@ -37,14 +39,14 @@ The project uses native Android with Kotlin and Jetpack Compose:
 
 ## Release workflow
 
-Pushing a tag such as `android-v0.2.0` builds a release APK and AAB and creates a GitHub release. The configured bootstrap can also be triggered by a `[release]` commit on `main`; after that, normal `android-v*` tags remain the preferred release path. The current starter uses the debug signing key for sideloadable builds; a private upload key should be wired through repository secrets before Play Store distribution.
+Pushing a tag such as `android-v0.3.0` builds a release APK and AAB and creates a GitHub release. The configured bootstrap can also be triggered by a `[release]` commit on `main`; after that, normal `android-v*` tags remain the preferred release path. The current build uses the debug signing key for sideloadable builds; a private upload key should be wired through repository secrets before Play Store distribution.
 
 ## Content roadmap
 
-1. Expand the reviewed, source-grounded symbol catalog beyond the starter set.
-2. Add spaced repetition, starred cards and per-category progress.
-3. Add a full-screen “identify the symbol” mode and timed deck mode.
-4. Add English/Turkish language selection and offline content versioning.
+1. Add spaced repetition, starred cards and per-category progress.
+2. Add a full-screen “identify the symbol” mode and timed deck mode.
+3. Add English/Turkish language selection and offline content versioning.
+4. Add a separately labelled S-52/S-100 ECDIS presentation deck.
 
 ## Reference
 
