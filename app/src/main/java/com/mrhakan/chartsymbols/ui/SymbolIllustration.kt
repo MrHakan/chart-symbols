@@ -481,7 +481,12 @@ private class ChartPainter(private val scope: DrawScope) {
             cubicTo(point(52f, 37f).x, point(52f, 37f).y, point(57f, 47f).x, point(57f, 47f).y, point(67f, 49f).x, point(67f, 49f).y)
             cubicTo(point(74f, 51f).x, point(74f, 51f).y, point(80f, 58f).x, point(80f, 58f).y, point(86f, 66f).x, point(86f, 66f).y)
         }, ChartInk, 3f)
-        scope.drawRect(ChartGreen.copy(alpha = 0.18f), point(15f, 30f), Size(71f * scale, 38f * scale), Fill)
+        scope.drawRect(
+            color = ChartGreen.copy(alpha = 0.18f),
+            topLeft = point(15f, 30f),
+            size = Size(71f * scale, 38f * scale),
+            style = Fill
+        )
         wave(78f)
         wave(87f)
     }
