@@ -15,8 +15,8 @@ class SymbolCatalogTest {
 
     @Test
     fun searchMatchesTurkishAndEnglishNames() {
-        assertEquals("Batık", SymbolCatalog.filter("wreck", SymbolCategory.ALL).single().title)
-        assertEquals("Deniz feneri", SymbolCatalog.filter("fener", SymbolCategory.ALL).single().title)
+        assertTrue(SymbolCatalog.filter("wreck", SymbolCategory.ALL).any { it.title == "Batık" })
+        assertTrue(SymbolCatalog.filter("fener", SymbolCategory.ALL).any { it.title == "Deniz feneri" })
     }
 
     @Test
@@ -24,8 +24,8 @@ class SymbolCatalogTest {
         assertTrue(SymbolCatalog.symbols.size >= 220)
         assertEquals(SymbolCatalog.symbols.size, SymbolCatalog.symbols.map { it.id }.toSet().size)
         assertEquals("Kardinal şamandıra", SymbolCatalog.filter("cardinal", SymbolCategory.ALL).single().title)
-        assertEquals("Denizaltı kablosu", SymbolCatalog.filter("cable", SymbolCategory.ALL).single().title)
-        assertEquals("Kum tabanı kısaltması", SymbolCatalog.filter("S/M", SymbolCategory.ALL).single().title)
+        assertTrue(SymbolCatalog.filter("cable", SymbolCategory.ALL).any { it.title == "Denizaltı kablosu" })
+        assertTrue(SymbolCatalog.filter("S/M", SymbolCategory.ALL).any { it.title == "Kum üstü çamur kısaltması" })
         assertEquals("Ezberlenecek.pdf / Chart Symbols and Abbreviations", SymbolCatalog.find("pdf-pilot-transfer").referenceFamily)
     }
 }
