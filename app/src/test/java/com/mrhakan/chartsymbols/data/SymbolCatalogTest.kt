@@ -21,9 +21,11 @@ class SymbolCatalogTest {
 
     @Test
     fun expandedCatalogueHasUniqueIdsAndAliasSearch() {
-        assertTrue(SymbolCatalog.symbols.size >= 150)
+        assertTrue(SymbolCatalog.symbols.size >= 220)
         assertEquals(SymbolCatalog.symbols.size, SymbolCatalog.symbols.map { it.id }.toSet().size)
         assertEquals("Kardinal şamandıra", SymbolCatalog.filter("cardinal", SymbolCategory.ALL).single().title)
         assertEquals("Denizaltı kablosu", SymbolCatalog.filter("cable", SymbolCategory.ALL).single().title)
+        assertEquals("Kum tabanı kısaltması", SymbolCatalog.filter("S/M", SymbolCategory.ALL).single().title)
+        assertEquals("Ezberlenecek.pdf / Chart Symbols and Abbreviations", SymbolCatalog.find("pdf-pilot-transfer").referenceFamily)
     }
 }

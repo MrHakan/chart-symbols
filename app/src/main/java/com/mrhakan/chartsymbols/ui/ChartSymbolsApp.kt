@@ -229,7 +229,7 @@ private fun HomeScreen(
         }
         item {
             Text(
-                text = "IHO INT 1 / Chart No. 1 görsel diliyle özgün vektör yeniden çizimleri — seyir için güncel resmî haritayı ve gemi prosedürlerini kontrol et.",
+                text = "IHO INT 1 / Chart No. 1 ve Ezberlenecek.pdf çalışma kartlarından özgün vektör yeniden çizimleri — seyir için güncel resmî haritayı ve gemi prosedürlerini kontrol et.",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)

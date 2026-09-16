@@ -1,5 +1,7 @@
 package com.mrhakan.chartsymbols.ui
 
+import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,12 +19,17 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.mrhakan.chartsymbols.data.ChartSymbol
 import com.mrhakan.chartsymbols.data.SymbolIcon
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.sin
 
 private val ChartPaper = Color(0xFFFFFCF2)
 private val ChartInk = Color(0xFF18252D)
@@ -53,7 +60,7 @@ fun SymbolIllustration(
             }
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            ChartPainter(this).draw(symbol.icon)
+            ChartPainter(this).draw(symbol.icon, symbol.chartNotation)
         }
     }
 }
@@ -121,6 +128,63 @@ private class ChartPainter(private val scope: DrawScope) {
         )
     }
 
+    private fun oval(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        color: Color = ChartInk,
+        outline: Boolean = true,
+        width: Float = 2.2f
+    ) {
+        scope.drawOval(
+            color = color,
+            topLeft = point(left, top),
+            size = Size((right - left) * scale, (bottom - top) * scale),
+            style = if (outline) Stroke(width = width * scale) else Fill
+        )
+    }
+
+    private fun dottedOval(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        color: Color = ChartInk
+    ) {
+        val centerX = (left + right) / 2f
+        val centerY = (top + bottom) / 2f
+        val radiusX = (right - left) / 2f
+        val radiusY = (bottom - top) / 2f
+        repeat(24) { index ->
+            val angle = index * 2f * PI / 24f
+            circle(
+                centerX + cos(angle).toFloat() * radiusX,
+                centerY + sin(angle).toFloat() * radiusY,
+                1.0f,
+                color
+            )
+        }
+    }
+
+    private fun chartText(
+        value: String,
+        x: Float = 50f,
+        y: Float = 54f,
+        size: Float = 14f,
+        color: Color = ChartInk
+    ) {
+        scope.drawIntoCanvas { canvas ->
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color.toArgb()
+                textSize = size * scale
+                textAlign = Paint.Align.CENTER
+                typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+            }
+            canvas.nativeCanvas.drawText(value, point(x, y).x, point(x, y).y, paint)
+        }
+    }
+
     private fun hatch(left: Float, top: Float, right: Float, bottom: Float, color: Color = ChartMagenta) {
         var start = left - (bottom - top)
         while (start < right) {
@@ -142,7 +206,7 @@ private class ChartPainter(private val scope: DrawScope) {
         }, color, 1.7f)
     }
 
-    fun draw(icon: SymbolIcon) {
+    fun draw(icon: SymbolIcon, notation: String?) {
         drawPaperFrame()
         when (icon) {
             SymbolIcon.LIGHT -> drawLight()
@@ -157,18 +221,43 @@ private class ChartPainter(private val scope: DrawScope) {
             SymbolIcon.LIGHT_FLOAT -> drawLightFloat()
             SymbolIcon.RADAR_AID -> drawRadarAid()
             SymbolIcon.WRECK -> drawWreck()
+            SymbolIcon.WRECK_DATUM_HULL -> drawWreckVariant(WreckVariant.DATUM_HULL, notation)
+            SymbolIcon.WRECK_DATUM_MAST -> drawWreckVariant(WreckVariant.DATUM_MAST, notation)
+            SymbolIcon.WRECK_SUNKEN_SAFE -> drawWreckVariant(WreckVariant.SUNKEN_SAFE, notation)
+            SymbolIcon.WRECK_MAST_SEA_LEVEL -> drawWreckVariant(WreckVariant.MAST_SEA_LEVEL, notation)
+            SymbolIcon.WRECK_SAFE_CLEARANCE -> drawWreckVariant(WreckVariant.SAFE_CLEARANCE, notation)
+            SymbolIcon.WRECK_SWEPT -> drawWreckVariant(WreckVariant.SWEPT, notation)
+            SymbolIcon.WRECK_SOUNDED -> drawWreckVariant(WreckVariant.SOUNDED, notation)
             SymbolIcon.ROCK -> drawRock()
+            SymbolIcon.DANGEROUS_ROCK_UNKNOWN -> drawDangerousRock(knownDepth = false)
+            SymbolIcon.DANGEROUS_ROCK_KNOWN -> drawDangerousRock(knownDepth = true)
+            SymbolIcon.UNDERWATER_ROCK -> drawUnderwaterRock()
+            SymbolIcon.LAND_ABOVE_SEA -> drawLandAboveSea()
+            SymbolIcon.ROCK_KNOWN_DEPTH -> drawRockVariant(RockVariant.KNOWN_DEPTH, notation)
+            SymbolIcon.ROCK_NOT_COVER -> drawRockVariant(RockVariant.NOT_COVER, notation)
+            SymbolIcon.ROCK_COVERS_UNCOVERS -> drawRockVariant(RockVariant.COVERS_UNCOVERS, notation)
+            SymbolIcon.ROCK_AWASH -> drawRockVariant(RockVariant.AWASH, notation)
+            SymbolIcon.ROCK_DANGEROUS_UNKNOWN -> drawRockVariant(RockVariant.DANGEROUS_UNKNOWN, notation)
+            SymbolIcon.ROCK_NOT_DANGEROUS -> drawRockVariant(RockVariant.NOT_DANGEROUS, notation)
+            SymbolIcon.CORAL -> drawCoral()
             SymbolIcon.OBSTRUCTION -> drawObstruction()
+            SymbolIcon.OBSTRUCTION_KNOWN -> drawObstructionVariant(knownDepth = true, swept = false, notation = notation)
+            SymbolIcon.OBSTRUCTION_SWEPT -> drawObstructionVariant(knownDepth = true, swept = true, notation = notation)
             SymbolIcon.FOUL_GROUND -> drawFoulGround()
+            SymbolIcon.FOUL -> drawFoul()
             SymbolIcon.MINE -> drawMine()
             SymbolIcon.SOUNDING -> drawSounding()
             SymbolIcon.CONTOUR -> drawContour()
             SymbolIcon.DEPTH_AREA -> drawDepthArea()
             SymbolIcon.DRYING -> drawDrying()
-            SymbolIcon.SEABED -> drawSeabed()
+            SymbolIcon.SEABED -> drawSeabed(notation)
             SymbolIcon.CURRENT -> drawCurrent()
             SymbolIcon.CABLE -> drawCable()
             SymbolIcon.PIPELINE -> drawPipeline()
+            SymbolIcon.POWER_CABLE -> drawPowerCable()
+            SymbolIcon.UNUSED_PIPELINE -> drawUnusedPipeline()
+            SymbolIcon.DANGER_LINE -> drawDangerLine()
+            SymbolIcon.SWEPT_DRAG -> drawSweptDrag(notation)
             SymbolIcon.COASTLINE -> drawCoastline()
             SymbolIcon.CLIFF -> drawCliff()
             SymbolIcon.LAND -> drawLand()
@@ -181,6 +270,20 @@ private class ChartPainter(private val scope: DrawScope) {
             SymbolIcon.ANCHORAGE -> drawAnchorage()
             SymbolIcon.RESTRICTED -> drawRestricted()
             SymbolIcon.NO_ANCHOR -> drawNoAnchor()
+            SymbolIcon.PROHIBITED_AREA -> drawProhibitedArea()
+            SymbolIcon.PROHIBITED_FISHING -> drawFishingProhibited()
+            SymbolIcon.MOORING_BUOY -> drawMooringBuoy()
+            SymbolIcon.OFFSHORE_PLATFORM -> drawOffshorePlatform()
+            SymbolIcon.LIGHTSHIP -> drawLightship()
+            SymbolIcon.MINARET -> drawMinaret()
+            SymbolIcon.BUOYAGE_DIRECTION -> drawBuoyageDirection()
+            SymbolIcon.PILOT_TRANSFER -> drawPilotTransfer()
+            SymbolIcon.TIDE_RIP -> drawTideRip()
+            SymbolIcon.EDDIES -> drawEddies()
+            SymbolIcon.PLATFORM_ZONE -> drawPlatformZone()
+            SymbolIcon.BREAKERS -> drawBreakers()
+            SymbolIcon.MARINE_FARM -> drawMarineFarm()
+            SymbolIcon.FISHING_ZONE -> drawFishingZone()
             SymbolIcon.FARM -> drawFarm()
             SymbolIcon.DUMPING -> drawDumping()
             SymbolIcon.ROUTE -> drawRoute()
@@ -361,6 +464,72 @@ private class ChartPainter(private val scope: DrawScope) {
         line(34f, 56f, 69f, 56f, ChartMagenta, 2f)
     }
 
+    private enum class WreckVariant {
+        DATUM_HULL,
+        DATUM_MAST,
+        SUNKEN_SAFE,
+        MAST_SEA_LEVEL,
+        SAFE_CLEARANCE,
+        SWEPT,
+        SOUNDED
+    }
+
+    private fun drawWreckVariant(variant: WreckVariant, notation: String?) {
+        when (variant) {
+            WreckVariant.DATUM_HULL -> {
+                path({
+                    moveTo(point(25f, 60f).x, point(25f, 60f).y)
+                    lineTo(point(37f, 48f).x, point(37f, 48f).y)
+                    lineTo(point(66f, 49f).x, point(66f, 49f).y)
+                    lineTo(point(77f, 60f).x, point(77f, 60f).y)
+                    lineTo(point(65f, 68f).x, point(65f, 68f).y)
+                    lineTo(point(34f, 68f).x, point(34f, 68f).y)
+                    close()
+                }, ChartInk, 2.8f, fill = true)
+                line(32f, 57f, 68f, 57f, ChartMagenta, 2f)
+            }
+            WreckVariant.DATUM_MAST -> {
+                dottedOval(25f, 36f, 75f, 67f)
+                line(37f, 53f, 63f, 53f, width = 2.8f)
+                line(44f, 53f, 44f, 36f, width = 2.6f)
+                line(56f, 53f, 56f, 36f, width = 2.6f)
+            }
+            WreckVariant.SUNKEN_SAFE -> {
+                line(29f, 54f, 71f, 54f, width = 3f)
+                line(39f, 45f, 39f, 63f, width = 2.8f)
+                line(50f, 45f, 50f, 63f, width = 2.8f)
+                line(61f, 45f, 61f, 63f, width = 2.8f)
+            }
+            WreckVariant.MAST_SEA_LEVEL -> {
+                dottedOval(20f, 36f, 80f, 68f)
+                line(34f, 52f, 66f, 52f, width = 2.8f)
+                line(50f, 52f, 50f, 22f, width = 3f)
+                line(42f, 37f, 58f, 37f, width = 2.4f)
+            }
+            WreckVariant.SAFE_CLEARANCE -> {
+                oval(25f, 35f, 75f, 69f, ChartInk, outline = true, width = 1.8f)
+                chartText(notation ?: "Wk", 50f, 54f, 13f)
+                line(42f, 76f, 58f, 76f, ChartBlue, 2f)
+            }
+            WreckVariant.SWEPT -> {
+                line(28f, 70f, 72f, 70f, width = 2.8f)
+                line(34f, 70f, 34f, 58f, width = 2.4f)
+                line(66f, 70f, 66f, 58f, width = 2.4f)
+                dottedOval(33f, 35f, 67f, 61f)
+                chartText(notation ?: "Wk", 50f, 53f, 12f)
+            }
+            WreckVariant.SOUNDED -> {
+                oval(27f, 36f, 73f, 68f, ChartInk, outline = true, width = 1.8f)
+                line(39f, 52f, 61f, 52f, width = 2.8f)
+                line(50f, 42f, 50f, 62f, width = 2.4f)
+                chartText(notation ?: "Wk", 50f, 79f, 11f)
+            }
+        }
+        if (variant != WreckVariant.SAFE_CLEARANCE && variant != WreckVariant.SWEPT && variant != WreckVariant.SOUNDED) {
+            chartText(notation.orEmpty(), 50f, 82f, 10f, ChartMagenta)
+        }
+    }
+
     private fun drawRock() {
         circle(50f, 52f, 5f, ChartMagenta)
         line(50f, 24f, 50f, 80f)
@@ -368,6 +537,104 @@ private class ChartPainter(private val scope: DrawScope) {
         line(31f, 33f, 69f, 71f)
         line(69f, 33f, 31f, 71f)
         wave(84f, ChartBlue)
+    }
+
+    private fun drawDangerousRock(knownDepth: Boolean) {
+        line(50f, 35f, 50f, 69f, width = 3f)
+        line(34f, 52f, 66f, 52f, width = 3f)
+        if (knownDepth) {
+            oval(29f, 31f, 71f, 73f, ChartInk, outline = true, width = 1.8f)
+            chartText("4.1", 50f, 84f, 11f, ChartBlue)
+        } else {
+            dottedOval(27f, 30f, 73f, 74f)
+        }
+    }
+
+    private fun drawUnderwaterRock() {
+        line(50f, 35f, 50f, 69f, width = 2.8f)
+        line(34f, 52f, 66f, 52f, width = 2.8f)
+        dottedOval(35f, 38f, 65f, 66f)
+    }
+
+    private fun drawLandAboveSea() {
+        path({
+            moveTo(point(25f, 61f).x, point(25f, 61f).y)
+            cubicTo(point(28f, 46f).x, point(28f, 46f).y, point(37f, 38f).x, point(37f, 38f).y, point(48f, 43f).x, point(48f, 43f).y)
+            cubicTo(point(59f, 33f).x, point(59f, 33f).y, point(72f, 43f).x, point(72f, 43f).y, point(75f, 59f).x, point(75f, 59f).y)
+            cubicTo(point(63f, 70f).x, point(63f, 70f).y, point(38f, 72f).x, point(38f, 72f).y, point(25f, 61f).x, point(25f, 61f).y)
+            close()
+        }, ChartGreen.copy(alpha = 0.2f), 2.4f, fill = true)
+        line(22f, 75f, 78f, 75f, ChartBlue, 2f)
+        circle(40f, 52f, 2.2f, ChartGreen)
+        circle(60f, 48f, 2.2f, ChartGreen)
+    }
+
+    private enum class RockVariant {
+        KNOWN_DEPTH,
+        NOT_COVER,
+        COVERS_UNCOVERS,
+        AWASH,
+        DANGEROUS_UNKNOWN,
+        NOT_DANGEROUS
+    }
+
+    private fun drawRockVariant(variant: RockVariant, notation: String?) {
+        when (variant) {
+            RockVariant.KNOWN_DEPTH -> {
+                line(50f, 33f, 50f, 69f, width = 2.8f)
+                line(34f, 51f, 66f, 51f, width = 2.8f)
+                oval(28f, 31f, 72f, 72f, ChartInk, outline = true, width = 1.8f)
+                chartText(notation ?: "Rk", 50f, 84f, 11f, ChartBlue)
+            }
+            RockVariant.NOT_COVER -> {
+                path({
+                    moveTo(point(28f, 67f).x, point(28f, 67f).y)
+                    lineTo(point(36f, 48f).x, point(36f, 48f).y)
+                    lineTo(point(47f, 56f).x, point(47f, 56f).y)
+                    lineTo(point(60f, 39f).x, point(60f, 39f).y)
+                    lineTo(point(73f, 67f).x, point(73f, 67f).y)
+                    close()
+                }, ChartYellow.copy(alpha = 0.55f), 2.4f, fill = true)
+                line(25f, 72f, 75f, 72f, ChartBlue, 2f)
+            }
+            RockVariant.COVERS_UNCOVERS -> {
+                path({
+                    moveTo(point(28f, 68f).x, point(28f, 68f).y)
+                    lineTo(point(38f, 45f).x, point(38f, 45f).y)
+                    lineTo(point(51f, 61f).x, point(51f, 61f).y)
+                    lineTo(point(63f, 43f).x, point(63f, 43f).y)
+                    lineTo(point(73f, 68f).x, point(73f, 68f).y)
+                    close()
+                }, ChartYellow.copy(alpha = 0.55f), 2.4f, fill = true)
+                wave(73f)
+            }
+            RockVariant.AWASH -> {
+                line(50f, 31f, 50f, 69f, width = 2.8f)
+                line(35f, 50f, 65f, 50f, width = 2.8f)
+                line(24f, 53f, 76f, 53f, ChartBlue, 2f)
+            }
+            RockVariant.DANGEROUS_UNKNOWN -> drawDangerousRock(knownDepth = false)
+            RockVariant.NOT_DANGEROUS -> {
+                line(50f, 37f, 50f, 67f, width = 2.4f)
+                line(37f, 52f, 63f, 52f, width = 2.4f)
+                chartText(notation ?: "R", 50f, 82f, 12f, ChartBlue)
+            }
+        }
+        if (variant == RockVariant.KNOWN_DEPTH || variant == RockVariant.DANGEROUS_UNKNOWN) {
+            chartText(notation.orEmpty(), 50f, 87f, 10f, ChartMagenta)
+        }
+    }
+
+    private fun drawCoral() {
+        path({
+            moveTo(point(24f, 68f).x, point(24f, 68f).y)
+            cubicTo(point(24f, 54f).x, point(24f, 54f).y, point(35f, 51f).x, point(35f, 51f).y, point(38f, 40f).x, point(38f, 40f).y)
+            cubicTo(point(44f, 50f).x, point(44f, 50f).y, point(48f, 45f).x, point(48f, 45f).y, point(51f, 34f).x, point(51f, 34f).y)
+            cubicTo(point(57f, 45f).x, point(57f, 45f).y, point(63f, 50f).x, point(63f, 50f).y, point(67f, 40f).x, point(67f, 40f).y)
+            cubicTo(point(69f, 54f).x, point(69f, 54f).y, point(77f, 55f).x, point(77f, 55f).y, point(76f, 68f).x, point(76f, 68f).y)
+            close()
+        }, ChartYellow.copy(alpha = 0.5f), 2.4f, fill = true)
+        chartText("Co", 50f, 82f, 12f, ChartBlue)
     }
 
     private fun drawObstruction() {
@@ -378,6 +645,21 @@ private class ChartPainter(private val scope: DrawScope) {
         line(31f, 76f, 69f, 76f, ChartBlue, 2f)
     }
 
+    private fun drawObstructionVariant(knownDepth: Boolean, swept: Boolean, notation: String?) {
+        if (swept) {
+            line(28f, 70f, 72f, 70f, width = 2.6f)
+            line(35f, 70f, 35f, 57f, width = 2.2f)
+            line(65f, 70f, 65f, 57f, width = 2.2f)
+            dottedOval(33f, 35f, 67f, 61f)
+        } else {
+            oval(27f, 35f, 73f, 69f, ChartBlue.copy(alpha = 0.65f), outline = false)
+            dottedOval(25f, 33f, 75f, 71f, ChartInk)
+            line(39f, 52f, 61f, 52f, ChartMagenta, 2.6f)
+            line(50f, 42f, 50f, 62f, ChartMagenta, 2.6f)
+        }
+        chartText(notation ?: "Obstn", 50f, 83f, 10f, if (knownDepth) ChartBlue else ChartMagenta)
+    }
+
     private fun drawFoulGround() {
         circle(31f, 44f, 3f, ChartMagenta)
         circle(47f, 35f, 3f, ChartMagenta)
@@ -386,6 +668,15 @@ private class ChartPainter(private val scope: DrawScope) {
         circle(59f, 65f, 3f, ChartMagenta)
         line(24f, 79f, 76f, 79f, ChartInk, 2f)
         line(31f, 84f, 69f, 84f, ChartBlue, 2f)
+    }
+
+    private fun drawFoul() {
+        rect(23f, 31f, 77f, 70f, ChartInk, 1.6f)
+        for (x in 31..69 step 13) {
+            line(x.toFloat(), 34f, (x + 6).toFloat(), 40f, ChartInk, 1.6f)
+            line(x.toFloat(), 61f, (x + 6).toFloat(), 67f, ChartInk, 1.6f)
+        }
+        chartText("Foul", 50f, 53f, 12f, ChartMagenta)
     }
 
     private fun drawMine() {
@@ -437,7 +728,12 @@ private class ChartPainter(private val scope: DrawScope) {
         line(31f, 80f, 69f, 80f, ChartBlue, 2f)
     }
 
-    private fun drawSeabed() {
+    private fun drawSeabed(notation: String?) {
+        if (!notation.isNullOrBlank()) {
+            chartText(notation, 50f, 55f, if (notation.length > 4) 11f else 22f, ChartInk)
+            line(24f, 73f, 76f, 73f, ChartBlue, 2f)
+            return
+        }
         repeat(5) { row ->
             repeat(4) { column ->
                 val x = 28f + column * 14f + if (row % 2 == 0) 3f else 0f
@@ -459,6 +755,76 @@ private class ChartPainter(private val scope: DrawScope) {
         }, ChartBlue, 2f, fill = true)
     }
 
+    private fun drawTideRip() {
+        for (y in listOf(34f, 49f, 64f)) wave(y, ChartBlue)
+        line(27f, 79f, 73f, 79f, ChartBlue, 2f)
+        chartText("RIP", 50f, 23f, 10f, ChartMagenta)
+    }
+
+    private fun drawEddies() {
+        for (x in listOf(31f, 50f, 69f)) {
+            path({
+                moveTo(point(x + 8f, 45f).x, point(x + 8f, 45f).y)
+                cubicTo(point(x - 5f, 34f).x, point(x - 5f, 34f).y, point(x - 8f, 58f).x, point(x - 8f, 58f).y, point(x + 4f, 58f).x, point(x + 4f, 58f).y)
+                cubicTo(point(x + 13f, 58f).x, point(x + 13f, 58f).y, point(x + 12f, 43f).x, point(x + 12f, 43f).y, point(x + 2f, 43f).x, point(x + 2f, 43f).y)
+            }, ChartBlue, 2f)
+        }
+        line(28f, 78f, 72f, 78f, ChartBlue, 2f)
+    }
+
+    private fun drawPlatformZone() {
+        drawOffshorePlatform()
+        dottedOval(20f, 23f, 80f, 80f, ChartMagenta)
+    }
+
+    private fun drawBreakers() {
+        for (y in listOf(34f, 49f, 64f)) {
+            path({
+                moveTo(point(20f, y).x, point(20f, y).y)
+                cubicTo(point(28f, y - 6f).x, point(28f, y - 6f).y, point(34f, y + 6f).x, point(34f, y + 6f).y, point(42f, y).x, point(42f, y).y)
+                cubicTo(point(50f, y - 6f).x, point(50f, y - 6f).y, point(56f, y + 6f).x, point(56f, y + 6f).y, point(64f, y).x, point(64f, y).y)
+                cubicTo(point(72f, y - 6f).x, point(72f, y - 6f).y, point(78f, y + 6f).x, point(78f, y + 6f).y, point(84f, y).x, point(84f, y).y)
+            }, ChartBlue, 2.2f)
+        }
+    }
+
+    private fun drawMarineFarm() {
+        rect(23f, 30f, 77f, 70f, ChartGreen, 2f)
+        for (x in 30..70 step 13) line(x.toFloat(), 32f, x.toFloat(), 68f, ChartGreen, 1.6f)
+        for (y in 38..62 step 12) line(25f, y.toFloat(), 75f, y.toFloat(), ChartGreen, 1.6f)
+        for (x in listOf(36f, 50f, 64f)) circle(x, 50f, 4f, ChartMagenta, outline = true)
+        chartText("Farm", 50f, 83f, 10f, ChartGreen)
+    }
+
+    private fun drawFishingZone() {
+        rect(22f, 30f, 78f, 70f, ChartMagenta, 2f)
+        for (x in 28..72 step 12) {
+            line(x.toFloat(), 30f, (x + 5).toFloat(), 35f, ChartMagenta, 1.5f)
+            line(x.toFloat(), 65f, (x + 5).toFloat(), 70f, ChartMagenta, 1.5f)
+        }
+        path({
+            moveTo(point(37f, 51f).x, point(37f, 51f).y)
+            cubicTo(point(44f, 43f).x, point(44f, 43f).y, point(56f, 43f).x, point(56f, 43f).y, point(63f, 51f).x, point(63f, 51f).y)
+            cubicTo(point(56f, 59f).x, point(56f, 59f).y, point(44f, 59f).x, point(44f, 59f).y, point(37f, 51f).x, point(37f, 51f).y)
+        }, ChartMagenta, 2f)
+        line(50f, 43f, 50f, 59f, ChartMagenta, 1.8f)
+    }
+
+    private fun drawFishingProhibited() {
+        rect(22f, 30f, 78f, 70f, ChartMagenta, 2f)
+        for (x in 28..72 step 12) {
+            line(x.toFloat(), 30f, (x + 5).toFloat(), 35f, ChartMagenta, 1.5f)
+            line(x.toFloat(), 65f, (x + 5).toFloat(), 70f, ChartMagenta, 1.5f)
+        }
+        path({
+            moveTo(point(37f, 51f).x, point(37f, 51f).y)
+            cubicTo(point(44f, 43f).x, point(44f, 43f).y, point(56f, 43f).x, point(56f, 43f).y, point(63f, 51f).x, point(63f, 51f).y)
+            cubicTo(point(56f, 59f).x, point(56f, 59f).y, point(44f, 59f).x, point(44f, 59f).y, point(37f, 51f).x, point(37f, 51f).y)
+        }, ChartMagenta, 2f)
+        line(50f, 43f, 50f, 59f, ChartMagenta, 1.8f)
+        line(31f, 36f, 69f, 66f, ChartMagenta, 3f)
+    }
+
     private fun drawCable() {
         path({
             moveTo(point(16f, 63f).x, point(16f, 63f).y)
@@ -472,6 +838,45 @@ private class ChartPainter(private val scope: DrawScope) {
         line(16f, 59f, 84f, 42f, ChartMagenta, 4f)
         for (x in 23..77 step 12) circle(x.toFloat(), 55f - (x - 16f) * 0.25f, 2.2f, ChartPaper)
         line(20f, 74f, 80f, 74f, ChartBlue, 2f)
+    }
+
+    private fun drawPowerCable() {
+        path({
+            moveTo(point(16f, 60f).x, point(16f, 60f).y)
+            cubicTo(point(30f, 42f).x, point(30f, 42f).y, point(42f, 76f).x, point(42f, 76f).y, point(55f, 57f).x, point(55f, 57f).y)
+            cubicTo(point(66f, 41f).x, point(66f, 41f).y, point(75f, 55f).x, point(75f, 55f).y, point(84f, 38f).x, point(84f, 38f).y)
+        }, ChartMagenta, 2.6f)
+        for (x in 24..76 step 13) {
+            line(x.toFloat(), 48f, (x + 4).toFloat(), 44f, ChartInk, 1.6f)
+            circle(x.toFloat(), 48f, 1.4f, ChartYellow)
+        }
+        chartText("Power", 50f, 82f, 9f, ChartBlue)
+    }
+
+    private fun drawUnusedPipeline() {
+        for (start in listOf(16f, 42f, 68f)) {
+            path({
+                moveTo(point(start, 56f).x, point(start, 56f).y)
+                cubicTo(point(start + 5f, 49f).x, point(start + 5f, 49f).y, point(start + 9f, 63f).x, point(start + 9f, 63f).y, point(start + 15f, 56f).x, point(start + 15f, 56f).y)
+            }, ChartMagenta, 2.6f)
+        }
+        line(28f, 76f, 72f, 76f, ChartBlue, 1.8f)
+        chartText("Not in use", 50f, 86f, 8f, ChartMagenta)
+    }
+
+    private fun drawDangerLine() {
+        dottedOval(22f, 31f, 78f, 71f, ChartInk)
+        line(39f, 45f, 61f, 57f, ChartMagenta, 2.6f)
+        line(61f, 45f, 39f, 57f, ChartMagenta, 2.6f)
+        circle(50f, 51f, 3f, ChartMagenta)
+    }
+
+    private fun drawSweptDrag(notation: String?) {
+        dottedOval(28f, 30f, 72f, 69f)
+        line(34f, 70f, 34f, 78f, width = 2f)
+        line(66f, 70f, 66f, 78f, width = 2f)
+        line(34f, 78f, 66f, 78f, width = 2f)
+        chartText(notation ?: "3", 50f, 52f, 16f, ChartBlue)
     }
 
     private fun drawCoastline() {
@@ -606,6 +1011,94 @@ private class ChartPainter(private val scope: DrawScope) {
     private fun drawNoAnchor() {
         drawAnchor()
         line(27f, 28f, 73f, 75f, ChartMagenta, 4f)
+    }
+
+    private fun drawProhibitedArea() {
+        rect(22f, 29f, 78f, 72f, ChartMagenta, 2f)
+        for (x in 27..73 step 12) {
+            line(x.toFloat(), 31f, (x + 6).toFloat(), 37f, ChartMagenta, 1.5f)
+            line(x.toFloat(), 64f, (x + 6).toFloat(), 70f, ChartMagenta, 1.5f)
+        }
+        line(36f, 42f, 64f, 60f, ChartMagenta, 3f)
+        line(64f, 42f, 36f, 60f, ChartMagenta, 3f)
+        chartText("PROHIBITED", 50f, 83f, 8f, ChartMagenta)
+    }
+
+    private fun drawMooringBuoy() {
+        wave(79f)
+        wave(88f)
+        line(50f, 24f, 50f, 40f, width = 2.2f)
+        circle(50f, 48f, 10f, ChartInk, outline = true)
+        line(43f, 55f, 57f, 55f, ChartMagenta, 2.6f)
+        line(43f, 61f, 57f, 61f, ChartMagenta, 2.6f)
+        line(50f, 58f, 50f, 73f, ChartInk, 2.2f)
+        line(41f, 73f, 59f, 73f, ChartInk, 2.4f)
+    }
+
+    private fun drawOffshorePlatform() {
+        rect(30f, 46f, 70f, 72f, ChartInk, 2.4f)
+        line(38f, 46f, 38f, 31f, ChartInk, 2.2f)
+        line(62f, 46f, 62f, 31f, ChartInk, 2.2f)
+        line(32f, 39f, 68f, 39f, ChartInk, 2.4f)
+        line(38f, 31f, 62f, 31f, ChartInk, 2.2f)
+        circle(50f, 23f, 4f, ChartMagenta)
+        line(50f, 27f, 50f, 31f, ChartMagenta, 2f)
+        line(26f, 77f, 74f, 77f, ChartBlue, 2f)
+    }
+
+    private fun drawLightship() {
+        wave(79f)
+        wave(88f)
+        path({
+            moveTo(point(31f, 57f).x, point(31f, 57f).y)
+            lineTo(point(39f, 43f).x, point(39f, 43f).y)
+            lineTo(point(61f, 43f).x, point(61f, 43f).y)
+            lineTo(point(69f, 57f).x, point(69f, 57f).y)
+            close()
+        }, ChartInk, 2.6f)
+        circle(50f, 56f, 4f, ChartMagenta, outline = true)
+        line(50f, 43f, 50f, 27f, ChartInk, 2.4f)
+        circle(50f, 23f, 4f, ChartMagenta)
+        line(43f, 65f, 57f, 65f, ChartMagenta, 2f)
+    }
+
+    private fun drawMinaret() {
+        line(50f, 71f, 50f, 39f, ChartInk, 2.8f)
+        circle(50f, 52f, 9f, ChartPaper, outline = true)
+        circle(50f, 52f, 3f, ChartInk)
+        line(50f, 39f, 42f, 27f, ChartInk, 2.4f)
+        line(50f, 39f, 58f, 27f, ChartInk, 2.4f)
+        circle(42f, 25f, 3f, ChartMagenta)
+        circle(58f, 25f, 3f, ChartMagenta)
+        line(41f, 75f, 59f, 75f, ChartInk, 2.4f)
+    }
+
+    private fun drawBuoyageDirection() {
+        line(50f, 76f, 50f, 27f, ChartMagenta, 3f)
+        path({
+            moveTo(point(50f, 22f).x, point(50f, 22f).y)
+            lineTo(point(42f, 34f).x, point(42f, 34f).y)
+            lineTo(point(58f, 34f).x, point(58f, 34f).y)
+            close()
+        }, ChartMagenta, 2f, fill = true)
+        path({
+            moveTo(point(50f, 81f).x, point(50f, 81f).y)
+            lineTo(point(42f, 69f).x, point(42f, 69f).y)
+            lineTo(point(58f, 69f).x, point(58f, 69f).y)
+            close()
+        }, ChartBlue, 2f, fill = true)
+    }
+
+    private fun drawPilotTransfer() {
+        oval(28f, 29f, 72f, 73f, ChartInk, outline = true, width = 2f)
+        path({
+            moveTo(point(50f, 35f).x, point(50f, 35f).y)
+            lineTo(point(62f, 51f).x, point(62f, 51f).y)
+            lineTo(point(50f, 67f).x, point(50f, 67f).y)
+            lineTo(point(38f, 51f).x, point(38f, 51f).y)
+            close()
+        }, ChartInk, 2f, fill = true)
+        circle(50f, 51f, 4f, ChartPaper)
     }
 
     private fun drawFarm() {

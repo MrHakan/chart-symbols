@@ -8,6 +8,8 @@ package com.mrhakan.chartsymbols.data
  * original vector redraws selected by [SymbolIcon], while the names and
  * explanations are kept separate so the catalogue can grow safely.
  */
+private const val PDF_REFERENCE = "Ezberlenecek.pdf / Chart Symbols and Abbreviations"
+
 object SymbolCatalog {
     val symbols: List<ChartSymbol> = listOf(
         // Navigation aids and the original starter cards.
@@ -107,6 +109,78 @@ object SymbolCatalog {
             memoryTip = "Sayıyı tek başına okuma: birim + datum + draft birlikte düşünülür.",
             aliases = listOf("sounding", "spot depth", "iskandil", "derinlik")
         ),
+
+        // Exact study terms and symbol families collected from Ezberlenecek.pdf.
+        p("pdf-sand", "Kum tabanı kısaltması", "Sand (S)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "S", meaning = "S, harita üzerindeki deniz tabanının kum olduğunu belirtir.", aliases = listOf("S", "sand", "kum")),
+        p("pdf-clay", "Kil / balçık tabanı kısaltması", "Clay (Cy; Cl)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Cy; Cl", meaning = "Cy veya Cl, deniz tabanındaki kil ya da balçık malzemesini belirtir.", aliases = listOf("Cy", "Cl", "clay", "kil", "balçık")),
+        p("pdf-mud", "Çamur tabanı kısaltması", "Mud (M)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "M", meaning = "M, deniz tabanının çamur olduğunu belirtir.", aliases = listOf("M", "mud", "çamur")),
+        p("pdf-silt", "Alüvyon tabanı kısaltması", "Silt (Si)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Si", meaning = "Si, ince taneli alüvyon veya silt tabanını belirtir.", aliases = listOf("Si", "silt", "alüvyon")),
+        p("pdf-stones", "Taşlık taban kısaltması", "Stones (St)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "St", meaning = "St, deniz tabanının taşlık olduğunu belirtir.", aliases = listOf("St", "stones", "taşlık")),
+        p("pdf-gravel", "İnce çakıl tabanı kısaltması", "Gravel (G)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "G", meaning = "G, deniz tabanındaki ince çakıl malzemesini belirtir.", aliases = listOf("G", "gravel", "ince çakıl")),
+        p("pdf-pebbles", "Orta çakıl tabanı kısaltması", "Pebbles (P)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "P", meaning = "P, deniz tabanındaki orta boy çakılları belirtir.", aliases = listOf("P", "pebbles", "orta çakıl")),
+        p("pdf-cobbles", "Büyük çakıl tabanı kısaltması", "Cobbles (Cb)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Cb", meaning = "Cb, deniz tabanındaki büyük çakıl veya taş parçalarını belirtir.", aliases = listOf("Cb", "cobbles", "büyük çakıl")),
+        p("pdf-rocky", "Kaya tabanı kısaltması", "Rock / Rocky (Rk)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Rk", meaning = "Rk, deniz tabanının kaya veya kayalık olduğunu belirtir.", aliases = listOf("Rk", "rock", "rocky", "kaya", "kayalık")),
+        p("pdf-coral", "Mercan tabanı kısaltması", "Coral (Co)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Co", meaning = "Co, deniz tabanındaki mercan oluşumunu belirtir.", aliases = listOf("Co", "coral", "mercan")),
+        p("pdf-shells", "Kabuklu taban kısaltması", "Shells (Sh)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Sh", meaning = "Sh, deniz tabanında kabuk veya kavkı birikimi bulunduğunu belirtir.", aliases = listOf("Sh", "shells", "kabuk")),
+        p("pdf-sand-over-mud", "Kum üstü çamur kısaltması", "Sand over Mud (S/M)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "S/M", meaning = "S/M, iki tabakalı zemini; üstte kum, altta çamur bulunduğunu belirtir.", aliases = listOf("S/M", "sand over mud", "iki kat")),
+        p("pdf-weed", "Otluk / yosun kısaltması", "Weed / Kelp (Wd)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Wd", meaning = "Wd, deniz tabanında otluk veya kelp/yosun bulunduğunu belirtir.", aliases = listOf("Wd", "weed", "kelp", "otluk", "yosun")),
+        p("pdf-mussels", "Midye tabanı kısaltması", "Mussels (Ms)", SymbolCategory.HYDROGRAPHY, SymbolIcon.SEABED, "Ms", meaning = "Ms, deniz tabanında midye yatakları bulunduğunu belirtir.", aliases = listOf("Ms", "mussels", "midye")),
+
+        p("pdf-danger-rock-unknown", "Derinliği belirsiz tehlikeli sualtı kayası", "Dangerous underwater rock of uncertain depth", SymbolCategory.HAZARDS, SymbolIcon.DANGEROUS_ROCK_UNKNOWN, meaning = "Derinliği kesin olarak bilinmeyen, yüzey seyrine tehlike oluşturduğu kabul edilen sualtı kayasıdır.", aliases = listOf("dangerous underwater rock", "uncertain depth", "belirsiz derinlik")),
+        p("pdf-danger-rock-known", "Derinliği bilinen tehlikeli sualtı kayası", "Dangerous underwater rock of certain depth", SymbolCategory.HAZARDS, SymbolIcon.DANGEROUS_ROCK_KNOWN, meaning = "Derinliği ölçülmüş, ancak yüzey seyrine tehlike oluşturabilecek sualtı kayasıdır.", aliases = listOf("dangerous underwater rock", "certain depth", "bilinen derinlik")),
+        p("pdf-underwater-rock", "Sualtı kayası", "Underwater rock", SymbolCategory.HAZARDS, SymbolIcon.UNDERWATER_ROCK, meaning = "Su seviyesinin altında kalan kaya oluşumunu belirtir; derinlik notu emniyet değerlendirmesine dahil edilir.", aliases = listOf("underwater rock", "sualtı kayası")),
+        p("pdf-land-above-sea", "Deniz seviyesinin üstündeki kara parçası", "Piece of land above sea level", SymbolCategory.TOPOGRAPHY, SymbolIcon.LAND_ABOVE_SEA, meaning = "Kara veya küçük ada parçasının deniz seviyesinin üzerinde bulunduğunu belirtir.", aliases = listOf("land above sea level", "island", "kara parçası")),
+        p("pdf-depth-contours", "Derinlik konturları", "Depth contours", SymbolCategory.DEPTH, SymbolIcon.CONTOUR, meaning = "Eşit derinlikteki noktaları birleştiren kontur/izobat çizgileridir.", aliases = listOf("depth contours", "isobath", "izobat")),
+        p("pdf-corals", "Mercan sembolü", "Corals", SymbolCategory.HYDROGRAPHY, SymbolIcon.CORAL, meaning = "Haritada mercan oluşumlarını veya mercanlı deniz tabanını belirtir.", aliases = listOf("corals", "coral symbol", "mercan")),
+        p("pdf-anchoring-area", "Demirleme alanı", "Anchoring area", SymbolCategory.AREAS, SymbolIcon.ANCHORAGE, meaning = "Gemilerin demirlemesi için ayrılmış alanı belirtir.", aliases = listOf("anchoring area", "anchorage", "demirleme")),
+        p("pdf-prohibited-anchoring-area", "Demirlemenin yasak olduğu alan", "Prohibited anchoring area", SymbolCategory.AREAS, SymbolIcon.NO_ANCHOR, meaning = "Bu alanda demirleme yapılmaması gerektiğini belirtir.", aliases = listOf("prohibited anchoring", "anchorage prohibited", "demir yasak")),
+
+        // Page 2 symbols from the supplied study sheet.
+        p("pdf-wreck-hull-datum", "Datum seviyesinde gövdesi görünen batık", "Wreck showing hull or superstructure at chart datum", SymbolCategory.HAZARDS, SymbolIcon.WRECK_DATUM_HULL, "Wk", meaning = "Batığın gövdesi veya üst yapısının harita datumu seviyesinde görüldüğünü belirtir.", aliases = listOf("wreck hull", "chart datum", "Wk")),
+        p("pdf-wreck-mast-datum", "Datum üzerinde direği görünen batık", "Wreck showing mast or masts above chart datum only", SymbolCategory.HAZARDS, SymbolIcon.WRECK_DATUM_MAST, "Mast", meaning = "Batığın yalnızca direk veya direklerinin harita datumu üzerinde kaldığını belirtir.", aliases = listOf("wreck mast", "mast above chart datum", "direk")),
+        p("pdf-sunken-wreck-safe", "Yüzey seyrine tehlikeli olmayan batık", "Sunken wreck, not dangerous to surface navigation", SymbolCategory.HAZARDS, SymbolIcon.WRECK_SUNKEN_SAFE, "Wk", meaning = "Tamamen batmış ve yüzey seyrine tehlike oluşturmadığı kabul edilen batıktır.", aliases = listOf("sunken wreck", "safe wreck", "güvenli batık")),
+        p("pdf-wreck-mast-sea-level", "Deniz seviyesinin üstünde direği görünen batık", "Wreck showing mast above sea level", SymbolCategory.HAZARDS, SymbolIcon.WRECK_MAST_SEA_LEVEL, "Mast", meaning = "Batığın direğinin deniz seviyesinin üzerine çıktığını belirtir.", aliases = listOf("mast above sea level", "batık direği")),
+        p("pdf-wreck-least-depth-safe", "Emniyetli açıklığı olan batık", "Wreck, least depth unknown but safe clearance considered", SymbolCategory.HAZARDS, SymbolIcon.WRECK_SAFE_CLEARANCE, "Wk", meaning = "En küçük derinliği bilinmeyen, fakat gösterilen derinliğe kadar emniyetli açıklığı olduğu kabul edilen batıktır.", aliases = listOf("safe clearance wreck", "least depth unknown")),
+        p("pdf-prohibited-area", "Yasak saha", "Prohibited area", SymbolCategory.AREAS, SymbolIcon.PROHIBITED_AREA, meaning = "Seyir veya belirli bir faaliyetin yasaklandığı alanı belirtir.", aliases = listOf("prohibited area", "yasak saha")),
+        p("pdf-underwater-cable", "Sualtı kablosu", "Underwater cable / submarine cable", SymbolCategory.HYDROGRAPHY, SymbolIcon.CABLE, meaning = "Deniz tabanından geçen sualtı haberleşme veya enerji kablosunu belirtir.", aliases = listOf("underwater cable", "submarine cable", "kablo")),
+        p("pdf-underwater-pipeline", "Sualtı boru hattı", "Underwater pipeline", SymbolCategory.HYDROGRAPHY, SymbolIcon.PIPELINE, meaning = "Deniz tabanından geçen boru hattını belirtir.", aliases = listOf("underwater pipeline", "pipeline", "boru hattı")),
+        p("pdf-prohibited-fishing-area", "Balıkçılığın yasak olduğu alan", "Prohibited fishing area", SymbolCategory.AREAS, SymbolIcon.PROHIBITED_FISHING, meaning = "Balıkçılık faaliyetinin yasaklandığı alanı belirtir.", aliases = listOf("prohibited fishing", "fishing prohibited", "balıkçılık yasak")),
+        p("pdf-mooring-buoys", "Bağlama şamandıraları", "Buoys for mooring", SymbolCategory.NAVIGATION, SymbolIcon.MOORING_BUOY, meaning = "Gemilerin bağlanması için kullanılan bağlama şamandıralarını belirtir.", aliases = listOf("mooring buoy", "bağlama şamandırası")),
+        p("pdf-unused-pipeline", "Kullanım dışı sualtı boru hattı", "Underwater pipeline not in use", SymbolCategory.HYDROGRAPHY, SymbolIcon.UNUSED_PIPELINE, meaning = "Haritada gösterilen ancak artık kullanımda olmayan sualtı boru hattını belirtir.", aliases = listOf("pipeline not in use", "unused pipeline", "kullanım dışı boru")),
+        p("pdf-danger-line", "Genel tehlike hattı", "Danger line in general", SymbolCategory.HAZARDS, SymbolIcon.DANGER_LINE, meaning = "Bir tehlikenin çevresini veya tehlikeli alan sınırını genel olarak belirtir.", aliases = listOf("danger line", "tehlike hattı")),
+        p("pdf-obstruction-unknown", "Derinliği bilinmeyen engel", "Obstruction, depth unknown", SymbolCategory.HAZARDS, SymbolIcon.OBSTRUCTION, "Obstn", meaning = "Deniz içindeki engelin bulunduğunu, ancak derinliğinin bilinmediğini belirtir.", aliases = listOf("obstruction depth unknown", "obstn", "engel")),
+        p("pdf-swept-wire-drag", "Tel taraması veya dalgıçla taranmış alan", "Swept by wire drag or diver", SymbolCategory.HAZARDS, SymbolIcon.SWEPT_DRAG, "3", meaning = "Tel taraması veya dalgıç kontrolüyle belirli bir derinliğe kadar taranmış alanı belirtir.", aliases = listOf("wire drag", "diver swept", "tarama")),
+        p("pdf-lighted-offshore-platform", "Işıklı açık deniz platformu", "Lighted offshore platform", SymbolCategory.NAVIGATION, SymbolIcon.OFFSHORE_PLATFORM, meaning = "Işıklandırılmış açık deniz petrol, gaz veya çalışma platformunu belirtir.", aliases = listOf("lighted offshore platform", "platform")),
+        p("pdf-lightship-big-light", "Büyük ışıklı fener gemisi / şamandıra", "Lightship or buoy having a big light", SymbolCategory.NAVIGATION, SymbolIcon.LIGHTSHIP, meaning = "Büyük bir fener taşıyan lightship veya şamandırayı belirtir.", aliases = listOf("lightship", "big light", "fener gemisi")),
+        p("pdf-minaret", "Minare", "Minaret, single or twin", SymbolCategory.TOPOGRAPHY, SymbolIcon.MINARET, "Minaret", meaning = "Tek veya çift minareyi, kıyıdaki belirgin kara işareti olarak belirtir.", aliases = listOf("minaret", "single minaret", "twin minaret", "minare")),
+        p("pdf-direction-of-buoyage", "Şamandıra sisteminin yönü", "Direction of buoyage", SymbolCategory.NAVIGATION, SymbolIcon.BUOYAGE_DIRECTION, meaning = "Lateral şamandıra sisteminde seyir yönünü veya buoyage yönünü belirtir.", aliases = listOf("direction of buoyage", "buoyage direction", "şamandıra yönü")),
+        p("pdf-underwater-rock-known-depth", "Derinliği bilinen sualtı kayası", "Underwater rock, depth known", SymbolCategory.HAZARDS, SymbolIcon.ROCK_KNOWN_DEPTH, "67 Rk", meaning = "Sualtı kayasının derinliğinin bilindiğini; örnekte 67 ve Rk gösterimini belirtir.", aliases = listOf("underwater rock depth known", "67 Rk", "bilinen kaya derinliği")),
+        p("pdf-pilot-transfer", "Kılavuz kaptan transfer yeri", "Location of pilot transfer", SymbolCategory.SERVICES, SymbolIcon.PILOT_TRANSFER, meaning = "Kılavuz kaptanın gemiye alındığı veya gemiden transfer edildiği yeri belirtir.", aliases = listOf("pilot transfer", "pilot boarding", "kılavuz transferi")),
+
+        // The supplied page 3 also contains an Admiralty-style danger and limits table.
+        p("pdf-rock-not-cover", "Örtmeyen kaya", "Rock which does not cover", SymbolCategory.HAZARDS, SymbolIcon.ROCK_NOT_COVER, meaning = "Gelgitte tamamen su altında kalmayan ve belirtilen yükseklikle birlikte gösterilen kayadır.", aliases = listOf("rock does not cover", "örtmeyen kaya")),
+        p("pdf-rock-covers-uncovers", "Örten ve açığa çıkan kaya", "Rock which covers and uncovers", SymbolCategory.HAZARDS, SymbolIcon.ROCK_COVERS_UNCOVERS, meaning = "Gelgit seviyesine göre bazen su altında kalan, bazen açığa çıkan kayadır.", aliases = listOf("covers and uncovers", "rock awash", "gelgit kayası")),
+        p("pdf-rock-awash", "Harita datumu seviyesinde kaya", "Rock awash at chart datum", SymbolCategory.HAZARDS, SymbolIcon.ROCK_AWASH, meaning = "Harita datumu seviyesinde suyla aynı hizada kalan kayayı belirtir.", aliases = listOf("rock awash", "chart datum rock")),
+        p("pdf-rock-dangerous-unknown", "Derinliği bilinmeyen tehlikeli kaya", "Rock dangerous to navigation, depth unknown", SymbolCategory.HAZARDS, SymbolIcon.ROCK_DANGEROUS_UNKNOWN, meaning = "Derinliği bilinmeyen, ancak yüzey seyrine tehlikeli kabul edilen kayadır.", aliases = listOf("dangerous rock unknown", "tehlikeli bilinmeyen kaya")),
+        p("pdf-rock-not-dangerous", "Yüzey seyrine tehlikeli olmayan kaya", "Underwater rock not dangerous to surface navigation", SymbolCategory.HAZARDS, SymbolIcon.ROCK_NOT_DANGEROUS, "35 R", meaning = "Verilen derinlik ve R notuyla yüzey seyrine tehlikeli kabul edilmeyen kayayı belirtir.", aliases = listOf("rock not dangerous", "safe underwater rock", "35 R")),
+        p("pdf-wreck-swept", "Tel taramasıyla derinliği bulunan batık", "Wreck swept by wire to depth shown", SymbolCategory.HAZARDS, SymbolIcon.WRECK_SWEPT, "Wk", meaning = "Tel taramasıyla gösterilen derinliğe kadar kontrol edilmiş batığı belirtir.", aliases = listOf("wreck swept by wire", "wire swept wreck")),
+        p("pdf-wreck-sounded", "İskandille derinliği bulunan batık", "Wreck depth obtained by sounding, not wire sweep", SymbolCategory.HAZARDS, SymbolIcon.WRECK_SOUNDED, "Wk", meaning = "Derinliği iskandille ölçülmüş, ancak tel taramasıyla doğrulanmamış batığı belirtir.", aliases = listOf("wreck sounding", "sounded wreck", "iskandil batık")),
+        p("pdf-wreck-safe-clearance", "Derinliği bilinmeyen emniyetli batık", "Wreck of unknown exact depth with safe clearance", SymbolCategory.HAZARDS, SymbolIcon.WRECK_SAFE_CLEARANCE, "Wk", meaning = "Kesin derinliği bilinmeyen, fakat gösterilen derinlikte emniyetli açıklığı olduğu kabul edilen batıktır.", aliases = listOf("safe clearance", "wreck unknown depth")),
+        p("pdf-foul", "Foul alan", "Foul ground / remains of wreck", SymbolCategory.HAZARDS, SymbolIcon.FOUL, "Foul", meaning = "Batık kalıntısı veya başka bir foul alanı; yüzey seyrine artık doğrudan tehlikeli olmasa da trol ve demirleme için kaçınılması gereken bölgedir.", aliases = listOf("foul ground", "foul area", "batık kalıntısı")),
+        p("pdf-obstruction-known", "Derinliği bilinen engel", "Obstruction, depth known", SymbolCategory.HAZARDS, SymbolIcon.OBSTRUCTION_KNOWN, "Obstn", meaning = "Engelin derinliğinin ölçülmüş olduğunu belirtir.", aliases = listOf("obstruction depth known", "known obstruction")),
+        p("pdf-obstruction-swept", "Tel taramasıyla kontrol edilmiş engel", "Obstruction swept by wire to depth shown", SymbolCategory.HAZARDS, SymbolIcon.OBSTRUCTION_SWEPT, "Obstn", meaning = "Engelin tel taramasıyla gösterilen derinliğe kadar kontrol edildiğini belirtir.", aliases = listOf("swept obstruction", "wire swept obstruction")),
+        p("pdf-overfalls", "Overfall / gelgit yarışı", "Overfalls, tide rips and races", SymbolCategory.HYDROGRAPHY, SymbolIcon.TIDE_RIP, meaning = "Gelgit akıntısının deniz yüzeyinde overfall, rip veya race oluşturduğu bölgeyi belirtir.", aliases = listOf("overfalls", "tide rip", "tide race", "gelgit yarışı")),
+        p("pdf-eddies", "Girdaplar", "Eddies", SymbolCategory.HYDROGRAPHY, SymbolIcon.EDDIES, meaning = "Girdap veya dönen akıntı oluşumlarının bulunduğu bölgeyi belirtir.", aliases = listOf("eddies", "girdap")),
+        p("pdf-oil-gas-platform", "Petrol/gaz platformu ve emniyet sahası", "Oil or gas production platform with or without safety zone", SymbolCategory.AREAS, SymbolIcon.PLATFORM_ZONE, meaning = "Petrol veya gaz üretim platformunu ve varsa etrafındaki emniyet bölgesini belirtir.", aliases = listOf("oil platform", "gas platform", "safety zone")),
+        p("pdf-breakers", "Kırılan dalgalar", "Breakers", SymbolCategory.HYDROGRAPHY, SymbolIcon.BREAKERS, meaning = "Sığlık, resif veya akıntı nedeniyle dalgaların kırıldığı bölgeyi belirtir.", aliases = listOf("breakers", "breaking waves", "kırılan dalga")),
+        p("pdf-marine-farm", "Deniz çiftliği", "Marine farm, large scale chart", SymbolCategory.AREAS, SymbolIcon.MARINE_FARM, meaning = "Büyük ölçekli haritada gösterilen deniz çiftliği veya yetiştiricilik alanını belirtir.", aliases = listOf("marine farm", "fish farm", "deniz çiftliği")),
+        p("pdf-leading-line", "Transit hattı", "Leading line", SymbolCategory.ROUTES, SymbolIcon.LEADING_LINE, meaning = "İki fener veya işaretin aynı kerterizde tutulmasıyla takip edilen transit hattıdır.", aliases = listOf("leading line", "transit line", "transit")),
+        p("pdf-traffic-separation", "Trafik ayırım düzeni", "Traffic separation scheme", SymbolCategory.ROUTES, SymbolIcon.TRAFFIC_SEPARATION, meaning = "Tek yönlü trafik şeritlerini ve aralarındaki ayırım bölgelerini belirtir.", aliases = listOf("traffic separation scheme", "TSS", "trafik ayırım")),
+        p("pdf-power-cable", "Enerji amaçlı sualtı kablosu", "Submarine cable, power", SymbolCategory.HYDROGRAPHY, SymbolIcon.POWER_CABLE, meaning = "Enerji iletiminde kullanılan sualtı elektrik kablosunu belirtir.", aliases = listOf("power cable", "submarine power cable", "enerji kablosu")),
+        p("pdf-national-fishing-zone", "Ulusal balıkçılık bölgesi sınırı", "Limits of national fishing zones", SymbolCategory.AREAS, SymbolIcon.FISHING_ZONE, meaning = "Ulusal balıkçılık bölgesinin sınırlarını belirtir.", aliases = listOf("national fishing zone", "fishing zone limits", "balıkçılık bölgesi")),
+        p("pdf-anchorage-general", "Genel demirleme alanı", "Anchorage area in general", SymbolCategory.AREAS, SymbolIcon.ANCHORAGE, meaning = "Genel demirleme alanını; özel tip, numara veya gemi sınıfı kısıtları ayrıca belirtilmiş olabilir.", aliases = listOf("general anchorage", "anchorage area")),
+        p("pdf-anchorage-prohibited", "Demirleme yasak alanı", "Anchorage prohibited", SymbolCategory.AREAS, SymbolIcon.NO_ANCHOR, meaning = "Demirleme yapılmasının yasak olduğunu belirten alan işaretidir.", aliases = listOf("anchorage prohibited", "no anchoring")),
+        p("pdf-fishing-prohibited", "Balıkçılık yasak alanı", "Fishing prohibited", SymbolCategory.AREAS, SymbolIcon.PROHIBITED_FISHING, meaning = "Balıkçılık yapılmasının yasak olduğunu belirten alan işaretidir.", aliases = listOf("fishing prohibited", "no fishing")),
 
         // A. General chart information and marginalia.
         c("chart-title", "Harita başlığı", "Chart title", SymbolCategory.GENERAL, SymbolIcon.NOTE, aliases = listOf("title", "başlık")),
@@ -297,6 +371,7 @@ object SymbolCatalog {
                 symbol.summary,
                 symbol.meaning,
                 symbol.recognition,
+                symbol.chartNotation.orEmpty(),
                 symbol.aliases.joinToString(" ")
             )
             val matchesQuery = normalizedQuery.isBlank() || searchableText.any {
@@ -305,6 +380,33 @@ object SymbolCatalog {
             matchesCategory && matchesQuery
         }
     }
+
+    private fun p(
+        id: String,
+        title: String,
+        englishName: String,
+        category: SymbolCategory,
+        icon: SymbolIcon,
+        notation: String? = null,
+        summary: String? = null,
+        meaning: String? = null,
+        recognition: String? = null,
+        memoryTip: String? = null,
+        aliases: List<String> = emptyList()
+    ): ChartSymbol = c(
+        id = id,
+        title = title,
+        englishName = englishName,
+        category = category,
+        icon = icon,
+        summary = summary,
+        meaning = meaning,
+        recognition = recognition,
+        memoryTip = memoryTip,
+        aliases = aliases,
+        chartNotation = notation,
+        referenceFamily = PDF_REFERENCE
+    )
 
     private fun c(
         id: String,
@@ -316,7 +418,9 @@ object SymbolCatalog {
         meaning: String? = null,
         recognition: String? = null,
         memoryTip: String? = null,
-        aliases: List<String> = emptyList()
+        aliases: List<String> = emptyList(),
+        chartNotation: String? = null,
+        referenceFamily: String = "IHO INT 1 / Chart No. 1"
     ): ChartSymbol = ChartSymbol(
         id = id,
         title = title,
@@ -328,7 +432,9 @@ object SymbolCatalog {
         meaning = meaning ?: "$title, deniz haritasında ilgili fiziksel özellik veya operasyonel bilgiyi gösterir. Sembol; renk, çizgi, alan deseni ve eşlik eden yazıyla birlikte okunmalıdır.",
         recognition = recognition ?: "${englishName} için kullanılan temel çizgi, nokta, alan deseni veya kısa etiketi ara.",
         memoryTip = memoryTip ?: "Önce kategoriyi, sonra şekli ve son olarak renk/etiketi kontrol et.",
-        aliases = aliases
+        aliases = aliases,
+        chartNotation = chartNotation,
+        referenceFamily = referenceFamily
     )
 
     private fun accentFor(category: SymbolCategory): SymbolAccent = when (category) {
