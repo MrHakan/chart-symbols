@@ -7,7 +7,13 @@ The first full catalogue release focuses on a fast, offline-friendly learning lo
 - visual symbol cards with Turkish explanations and English terminology;
 - search and category filters;
 - detail pages with meaning, recognition cues and memory tips;
-- a working multiple-choice visual quiz;
+- an **Ezberle** tab that presents the supplied `Ezberlenecek.pdf` study sheet as
+  four decks, in the sheet's own order: seabed abbreviations (14), chart symbols
+  and meanings (28), Admiralty DANGERS (16) and Admiralty LIMITS (7);
+- hand-written recognition cues and memory tips on all 65 study-sheet cards,
+  instead of generated placeholder text;
+- a randomised multiple-choice visual quiz that can be scoped to a single deck,
+  with distractors drawn from the same category;
 - progress feedback for discovered cards;
 - 220 catalogue cards across general chart information, topography, hydrography,
   depths, navigation aids, hazards, areas, routes, ports and services;
@@ -46,7 +52,7 @@ Pushing a tag such as `android-v0.4.0` builds a release APK and AAB and creates 
 
 ## Content roadmap
 
-1. Add spaced repetition, starred cards and per-category progress.
+1. Add spaced repetition, starred cards and per-deck progress.
 2. Add a full-screen “identify the symbol” mode and timed deck mode.
 3. Add English/Turkish language selection and offline content versioning.
 4. Add a separately labelled S-52/S-100 ECDIS presentation deck.

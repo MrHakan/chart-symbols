@@ -28,6 +28,8 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Lightbulb
@@ -72,11 +74,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mrhakan.chartsymbols.data.ChartSymbol
+import com.mrhakan.chartsymbols.data.QuizBuilder
+import com.mrhakan.chartsymbols.data.StudyDeck
 import com.mrhakan.chartsymbols.data.SymbolCatalog
 import com.mrhakan.chartsymbols.data.SymbolCategory
 
 private const val HOME = "home"
 private const val EXPLORE = "explore"
+private const val STUDY = "study"
 private const val QUIZ = "quiz"
 
 @Composable
@@ -87,6 +92,9 @@ fun ChartSymbolsApp() {
     var selectedCategoryName by rememberSaveable { mutableStateOf(SymbolCategory.ALL.name) }
     var learnedIds by remember { mutableStateOf(emptySet<String>()) }
     var bookmarkedIds by remember { mutableStateOf(emptySet<String>()) }
+    var quizDeckName by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val quizDeck = quizDeckName?.let { StudyDeck.valueOf(it) }
 
     val selectedCategory = SymbolCategory.valueOf(selectedCategoryName)
     val visibleSymbols = SymbolCatalog.filter(searchQuery, selectedCategory)
@@ -149,8 +157,22 @@ fun ChartSymbolsApp() {
                 }
             )
 
+            STUDY -> StudyScreen(
+                modifier = Modifier.padding(innerPadding),
+                onOpenSymbol = { symbol ->
+                    learnedIds = learnedIds + symbol.id
+                    detailSymbolId = symbol.id
+                },
+                onQuizDeck = { deck ->
+                    quizDeckName = deck.name
+                    tab = QUIZ
+                }
+            )
+
             QUIZ -> QuizScreen(
                 modifier = Modifier.padding(innerPadding),
+                deck = quizDeck,
+                onDeckChange = { quizDeckName = it?.name },
                 onOpenSymbol = { symbol ->
                     learnedIds = learnedIds + symbol.id
                     detailSymbolId = symbol.id
@@ -570,11 +592,34 @@ private fun SymbolDetailScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text(symbol.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                     Text(symbol.englishName, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Text(symbol.category.label, modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text(symbol.category.label, modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp), style = MaterialTheme.typography.labelMedium)
+                        }
+                        symbol.deck?.let { deck ->
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Text(
+                                    text = "Ezberlenecek · ${deck.label}",
+                                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 6.dp),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                    }
+                    symbol.chartNotation?.let { notation ->
+                        Text(
+                            text = "Harita gösterimi: $notation",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
@@ -631,19 +676,34 @@ private fun InfoBlock(
 @Composable
 private fun QuizScreen(
     modifier: Modifier,
+    deck: StudyDeck?,
+    onDeckChange: (StudyDeck?) -> Unit,
     onOpenSymbol: (ChartSymbol) -> Unit
 ) {
-    val questions = remember { SymbolCatalog.symbols.take(6) }
+    // Bumped on every restart so a new round reshuffles instead of replaying
+    // the same questions in the same order.
+    var round by rememberSaveable { mutableStateOf(0) }
     var questionIndex by rememberSaveable { mutableStateOf(0) }
     var selectedOption by rememberSaveable { mutableStateOf<String?>(null) }
     var score by rememberSaveable { mutableStateOf(0) }
     var finished by rememberSaveable { mutableStateOf(false) }
+
+    val questions = remember(deck, round) {
+        QuizBuilder.build(if (deck == null) SymbolCatalog.symbols else SymbolCatalog.deck(deck))
+    }
+    if (questions.isEmpty()) {
+        EmptyState()
+        return
+    }
     val current = questions[questionIndex.coerceIn(0, questions.lastIndex)]
-    val options = remember(current.id) {
-        (listOf(current.title) + SymbolCatalog.symbols
-            .filter { it.id != current.id }
-            .take(3)
-            .map { it.title }).shuffled()
+    val options = current.options
+
+    val restart = {
+        questionIndex = 0
+        selectedOption = null
+        score = 0
+        finished = false
+        round += 1
     }
 
     if (finished) {
@@ -651,13 +711,8 @@ private fun QuizScreen(
             score = score,
             total = questions.size,
             modifier = modifier,
-            onRestart = {
-                questionIndex = 0
-                selectedOption = null
-                score = 0
-                finished = false
-            },
-            onOpenSymbol = { onOpenSymbol(current) }
+            onRestart = restart,
+            onOpenSymbol = { onOpenSymbol(current.symbol) }
         )
         return
     }
@@ -677,10 +732,37 @@ private fun QuizScreen(
             ) {
                 Column {
                     Text("Görsel quiz", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
-                    Text("Sembolü gör, anlamını seç.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        text = deck?.label ?: "Tüm katalog",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
                 Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(50)) {
                     Text("${questionIndex + 1} / ${questions.size}", modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
+        }
+        item {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                item {
+                    FilterChip(
+                        selected = deck == null,
+                        onClick = {
+                            onDeckChange(null)
+                            restart()
+                        },
+                        label = { Text("Tüm katalog") }
+                    )
+                }
+                items(StudyDeck.sheetOrder) { option ->
+                    FilterChip(
+                        selected = deck == option,
+                        onClick = {
+                            onDeckChange(option)
+                            restart()
+                        },
+                        label = { Text(option.label) }
+                    )
                 }
             }
         }
@@ -696,14 +778,14 @@ private fun QuizScreen(
                 shape = RoundedCornerShape(26.dp)
             ) {
                 Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    SymbolIllustration(current, Modifier.fillMaxWidth().height(230.dp))
+                    SymbolIllustration(current.symbol, Modifier.fillMaxWidth().height(230.dp))
                     Text("Bu sembol neyi anlatıyor?", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 }
             }
         }
         items(options) { option ->
             val isSelected = selectedOption == option
-            val isCorrect = option == current.title
+            val isCorrect = option == current.answer
             val background = when {
                 selectedOption == null -> MaterialTheme.colorScheme.surface
                 isCorrect -> Color(0xFFDDF5E4)
@@ -736,14 +818,18 @@ private fun QuizScreen(
             if (selectedOption != null) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(
-                        text = if (selectedOption == current.title) "Doğru! ${current.memoryTip}" else "Doğru cevap: ${current.title}",
-                        color = if (selectedOption == current.title) Color(0xFF2F855A) else MaterialTheme.colorScheme.error,
+                        text = if (selectedOption == current.answer) {
+                            "Doğru! ${current.symbol.memoryTip}"
+                        } else {
+                            "Doğru cevap: ${current.answer} — ${current.symbol.memoryTip}"
+                        },
+                        color = if (selectedOption == current.answer) Color(0xFF2F855A) else MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                     Button(
                         onClick = {
-                            if (selectedOption == current.title) score += 1
+                            if (selectedOption == current.answer) score += 1
                             if (questionIndex == questions.lastIndex) {
                                 finished = true
                             } else {
@@ -804,6 +890,97 @@ private fun QuizResult(
     }
 }
 
+/**
+ * The `Ezberlenecek.pdf` study sheet, shown section by section in sheet order
+ * so the deck can be revised the same way the sheet is laid out.
+ */
+@Composable
+private fun StudyScreen(
+    modifier: Modifier,
+    onOpenSymbol: (ChartSymbol) -> Unit,
+    onQuizDeck: (StudyDeck) -> Unit
+) {
+    val decks = remember { SymbolCatalog.decks() }
+    var openDeckName by rememberSaveable { mutableStateOf(StudyDeck.sheetOrder.first().name) }
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Ezberlenecek", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                Text(
+                    text = "Çalışma sayfasındaki ${SymbolCatalog.studySheetSymbols.size} kart, sayfadaki sırasıyla.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        decks.forEach { (deck, cards) ->
+            item(key = deck.name) {
+                val expanded = openDeckName == deck.name
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    shape = RoundedCornerShape(22.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { openDeckName = if (expanded) "" else deck.name },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text(deck.label, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text(
+                                    text = "${cards.size} kart",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Icon(
+                                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                contentDescription = if (expanded) "Daralt" else "Genişlet"
+                            )
+                        }
+
+                        if (expanded) {
+                            Text(
+                                text = deck.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            cards.forEach { symbol ->
+                                Divider(color = MaterialTheme.colorScheme.outlineVariant)
+                                LibraryRow(symbol = symbol, onClick = { onOpenSymbol(symbol) })
+                            }
+                            Button(onClick = { onQuizDeck(deck) }, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Outlined.Quiz, contentDescription = null)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Bu desteyi çöz", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        item {
+            Text(
+                text = "Kaynak: kullanıcı tarafından sağlanan Ezberlenecek.pdf çalışma sayfası. Görseller öğrenme amaçlı özgün vektör yeniden çizimlerdir; resmî yayın kopyası değildir ve seyir için kullanılamaz.",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        item { Spacer(Modifier.height(12.dp)) }
+    }
+}
+
 @Composable
 private fun EmptyState() {
     Column(
@@ -833,6 +1010,12 @@ private fun AppBottomBar(selectedTab: String, onTabSelected: (String) -> Unit) {
             onClick = { onTabSelected(EXPLORE) },
             icon = { Icon(Icons.Outlined.Explore, contentDescription = "Keşfet") },
             label = { Text("Keşfet") }
+        )
+        NavigationBarItem(
+            selected = selectedTab == STUDY,
+            onClick = { onTabSelected(STUDY) },
+            icon = { Icon(Icons.Outlined.MenuBook, contentDescription = "Ezberle") },
+            label = { Text("Ezberle") }
         )
         NavigationBarItem(
             selected = selectedTab == QUIZ,
