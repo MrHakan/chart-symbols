@@ -107,6 +107,42 @@ enum class SymbolIcon {
     NOTE
 }
 
+/**
+ * Sections of the supplied `Ezberlenecek.pdf` study sheet.
+ *
+ * The sheet is the user's memorisation list, so the cards it produces are
+ * grouped exactly the way the sheet presents them. Catalogue cards that do
+ * not come from the sheet leave [ChartSymbol.deck] null.
+ */
+enum class StudyDeck(val label: String, val description: String) {
+    SEABED_ABBREVIATIONS(
+        "Deniz tabanı kısaltmaları",
+        "Çalışma sayfasının \"Seabed Terms Abbreviations on Charts\" tablosu: iskandil değerlerinin yanında okunan zemin kısaltmaları."
+    ),
+    SYMBOL_MEANINGS(
+        "Sembol ve anlamları",
+        "Çalışma sayfasının \"Chart Symbols and Meanings\" tablosu: kaya, batık, kablo, boru hattı ve alan sembolleri."
+    ),
+    ADMIRALTY_DANGERS(
+        "Admiralty – Tehlikeler",
+        "Çalışma sayfasının Admiralty Chart Symbols eki, DANGERS sütunu: kaya, batık, engel ve akıntı tehlikeleri."
+    ),
+    ADMIRALTY_LIMITS(
+        "Admiralty – Sınırlar",
+        "Çalışma sayfasının Admiralty Chart Symbols eki, LIMITS sütunu: transit hattı, trafik ayırımı, kablo ve alan sınırları."
+    );
+
+    companion object {
+        /** Sheet order, used for deck listings and the study screen. */
+        val sheetOrder: List<StudyDeck> = listOf(
+            SEABED_ABBREVIATIONS,
+            SYMBOL_MEANINGS,
+            ADMIRALTY_DANGERS,
+            ADMIRALTY_LIMITS
+        )
+    }
+}
+
 enum class SymbolAccent {
     TEAL,
     AMBER,
@@ -129,5 +165,7 @@ data class ChartSymbol(
     val memoryTip: String,
     val aliases: List<String> = emptyList(),
     val chartNotation: String? = null,
-    val referenceFamily: String = "IHO INT 1 / Chart No. 1"
+    val referenceFamily: String = "IHO INT 1 / Chart No. 1",
+    /** Non-null when the card is transcribed from the `Ezberlenecek.pdf` study sheet. */
+    val deck: StudyDeck? = null
 )
