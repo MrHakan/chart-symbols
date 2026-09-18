@@ -6,6 +6,11 @@ on:
     tags: ["android-v*"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Existing android-v* tag to rebuild and attach the APK/AAB to"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -43,14 +48,38 @@ jobs:
     name: Create tagged release
     if: >-
       startsWith(github.ref, 'refs/tags/android-v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_tag != '') ||
       (github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[release]'))
     needs: build
     runs-on: ubuntu-latest
     env:
       BOOTSTRAP_RELEASE_TAG: android-v0.4.0
     steps:
+      - name: Resolve release tag
+        id: release
+        env:
+          DISPATCH_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [[ -n "$DISPATCH_TAG" ]]; then
+            RELEASE_TAG="$DISPATCH_TAG"
+            MODE=dispatch
+          elif [[ "$GITHUB_REF" == refs/tags/android-v* ]]; then
+            RELEASE_TAG="$GITHUB_REF_NAME"
+            MODE=tag
+          else
+            RELEASE_TAG="$BOOTSTRAP_RELEASE_TAG"
+            MODE=bootstrap
+          fi
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${RELEASE_TAG#android-v}" >> "$GITHUB_OUTPUT"
+          echo "mode=$MODE" >> "$GITHUB_OUTPUT"
+
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # A dispatched repair run builds the sources the tag points at,
+          # not whatever main happens to be.
+          ref: ${{ inputs.release_tag || github.ref }}
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -63,32 +92,34 @@ jobs:
 
       - name: Build release APK and AAB
         env:
-          RELEASE_VERSION: ${{ github.ref_name }}
+          VERSION_NAME: ${{ steps.release.outputs.version }}
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/android-v* ]]; then
-            RELEASE_TAG="$RELEASE_VERSION"
-          else
-            RELEASE_TAG="$BOOTSTRAP_RELEASE_TAG"
-          fi
-          VERSION_NAME="${RELEASE_TAG#android-v}"
-          ./gradlew assembleRelease bundleRelease -PversionName="$VERSION_NAME" --stacktrace
+          ./gradlew assembleRelease bundleRelease \
+            -PversionName="$VERSION_NAME" --stacktrace
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+          VERSION_NAME: ${{ steps.release.outputs.version }}
+          RELEASE_MODE: ${{ steps.release.outputs.mode }}
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/android-v* ]]; then
-            RELEASE_TAG="$GITHUB_REF_NAME"
-          else
-            RELEASE_TAG="$BOOTSTRAP_RELEASE_TAG"
-          fi
-          VERSION_NAME="${RELEASE_TAG#android-v}"
+          # Create the release only when it is missing, but upload the
+          # artifacts either way: a release created by hand in the GitHub UI
+          # already exists by the time this runs, and skipping the whole step
+          # left it published with no APK attached.
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Release $RELEASE_TAG already exists; skipping duplicate creation."
+            if [[ "$RELEASE_MODE" == "bootstrap" ]]; then
+              echo "Bootstrap release $RELEASE_TAG already exists; leaving its assets untouched."
+              exit 0
+            fi
+            echo "Release $RELEASE_TAG already exists; attaching artifacts to it."
           else
             gh release create "$RELEASE_TAG" \
-              app/build/outputs/apk/release/app-release.apk \
-              app/build/outputs/bundle/release/app-release.aab \
               --generate-notes \
               --title "Chart Symbols $VERSION_NAME"
           fi
+          gh release upload "$RELEASE_TAG" \
+            app/build/outputs/apk/release/app-release.apk \
+            app/build/outputs/bundle/release/app-release.aab \
+            --clobber
